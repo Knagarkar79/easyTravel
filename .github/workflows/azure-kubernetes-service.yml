@@ -1,0 +1,44 @@
+name: Deploy to AKS
+
+on:
+  workflow_dispatch:
+    inputs:
+      manifest:
+        description: 'Select the Kubernetes manifest file to deploy'
+        required: true
+        default: 'easytravel-frontend.yaml'
+        options:
+          - 'easytravel-backend.yaml'
+          - 'easytravel-config.yaml'
+          - 'easytravel-frontend.yaml'
+          - 'easytravel-loadgen.yaml'
+          - 'easytravel-mongodb-secret.yaml'
+          - 'easytravel-mongodb.yaml'
+          - 'easytravel-nginx.yaml'
+      namespace:
+        description: 'Specify the namespace to deploy to'
+        required: true
+
+env:
+  AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ env.AZURE_CREDENTIALS }}
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v1
+        with:
+          kubeconfig: ${{ secrets.KUBE_CONFIG_DATA }}
+
+      - name: Deploy to AKS
+        run: |
+          kubectl apply -f ${{ github.workspace }}/path/to/your/manifests/${{ github.event.inputs.manifest }} -n ${{ github.event.inputs.namespace }}
