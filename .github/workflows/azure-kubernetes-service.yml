@@ -41,4 +41,4 @@ jobs:
 
       - name: Deploy to AKS
         run: |
-          kubectl apply -f ${{ github.workspace }}/manifests/${{ github.event.inputs.manifest }} -n ${{ github.event.inputs.namespace }}
+          kubectl apply -f ./easyTravel/manifests/${{ github.event.inputs.manifest }} -n ${{ github.event.inputs.namespace }}
