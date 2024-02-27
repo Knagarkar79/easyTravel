@@ -14,16 +14,16 @@ on:
       manifest:
         description: 'Select the Kubernetes manifest file to deploy'
         required: true
-        default: 'easytravel-frontend.yaml'
+        default: 'easytravel-frontend'
         type: choice
         options:
-          - 'easytravel-backend.yaml'
-          - 'easytravel-config.yaml'
-          - 'easytravel-frontend.yaml'
-          - 'easytravel-loadgen.yaml'
-          - 'easytravel-mongodb-secret.yaml'
-          - 'easytravel-mongodb.yaml'
-          - 'easytravel-nginx.yaml'
+          - 'easytravel-backend'
+          - 'easytravel-config'
+          - 'easytravel-frontend'
+          - 'easytravel-loadgen'
+          - 'easytravel-mongodb-secret'
+          - 'easytravel-mongodb'
+          - 'easytravel-nginx'
       namespace:
         description: 'Specify the namespace to deploy to'
         required: true
@@ -62,9 +62,9 @@ jobs:
       - name: Deploy to AKS
         run: |
           if [ "${{ github.event.inputs.action }}" == "deploy" ]; then
-            kubectl apply -f ${{ github.workspace }}/manifests/${{ github.event.inputs.manifest }} -n ${{ github.event.inputs.namespace }}
+            kubectl apply -f ${{ github.workspace }}/manifests/${{ github.event.inputs.manifest }}.yaml -n ${{ github.event.inputs.namespace }}
           elif [ "${{ github.event.inputs.action }}" == "clean" ]; then
-            kubectl delete pods --all -n ${{ github.event.inputs.namespace }}
+            kubectl delete deployment ${{ github.event.inputs.manifest }} -n ${{ github.event.inputs.namespace }}
           else
             echo "Invalid action specified"
             exit 1
