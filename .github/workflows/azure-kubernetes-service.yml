@@ -6,12 +6,14 @@ on:
       action:
         description: 'Select the action to perform'
         required: true
+        default: 'deploy'
         options:
           - 'deploy'
           - 'clean'
       manifest:
         description: 'Select the Kubernetes manifest file to deploy'
-        required: false
+        required: true
+        default: 'easytravel-frontend.yaml'
         options:
           - 'easytravel-backend.yaml'
           - 'easytravel-config.yaml'
@@ -23,6 +25,10 @@ on:
       namespace:
         description: 'Specify the namespace to deploy to'
         required: true
+        default: 'easytravel'
+        options:
+          - 'easytravel'
+          - 'other-namespace'
 
 env:
   AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
@@ -50,7 +56,7 @@ jobs:
         with:
           kubeconfig: ${{ env.KUBE_CONFIG_DATA }}
 
-      - name: Perform Action
+      - name: Deploy to AKS
         run: |
           if [ "${{ github.event.inputs.action }}" == "deploy" ]; then
             kubectl apply -f ${{ github.workspace }}/manifests/${{ github.event.inputs.manifest }} -n ${{ github.event.inputs.namespace }}
