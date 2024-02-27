@@ -7,6 +7,7 @@ on:
         description: 'Select the action to perform'
         required: true
         default: 'deploy'
+        type: choice
         options:
           - 'deploy'
           - 'clean'
@@ -14,6 +15,7 @@ on:
         description: 'Select the Kubernetes manifest file to deploy'
         required: true
         default: 'easytravel-frontend.yaml'
+        type: choice
         options:
           - 'easytravel-backend.yaml'
           - 'easytravel-config.yaml'
@@ -26,9 +28,10 @@ on:
         description: 'Specify the namespace to deploy to'
         required: true
         default: 'easytravel'
+        type: choice
         options:
           - 'easytravel'
-          - 'other-namespace'
+          - 'argocd'
 
 env:
   AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
