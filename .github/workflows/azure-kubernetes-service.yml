@@ -3,44 +3,26 @@ name: Deploy to AKS
 on:
   workflow_dispatch:
     inputs:
-      easytravel-backend.yaml:
-        description: 'Deploy EasyTravel Backend'
-        required: false
-        default: false
-      easytravel-config.yaml:
-        description: 'Deploy EasyTravel Config'
-        required: false
-        default: false
-      easytravel-frontend.yaml:
-        description: 'Deploy EasyTravel Frontend'
-        required: false
-        default: true
-      easytravel-loadgen.yaml:
-        description: 'Deploy EasyTravel Loadgen'
-        required: false
-        default: false
-      easytravel-mongodb-secret.yaml:
-        description: 'Deploy EasyTravel MongoDB Secret'
-        required: false
-        default: false
-      easytravel-mongodb.yaml:
-        description: 'Deploy EasyTravel MongoDB'
-        required: false
-        default: false
-      easytravel-nginx.yaml:
-        description: 'Deploy EasyTravel Nginx'
-        required: false
-        default: false
-      namespace:
-        description: 'Specify the namespace to deploy to'
-        required: true
       action:
-        description: 'Select action to perform'
-        required: false
-        default: 'deploy'
+        description: 'Select the action to perform'
+        required: true
         options:
           - 'deploy'
           - 'clean'
+      manifest:
+        description: 'Select the Kubernetes manifest file to deploy'
+        required: false
+        options:
+          - 'easytravel-backend.yaml'
+          - 'easytravel-config.yaml'
+          - 'easytravel-frontend.yaml'
+          - 'easytravel-loadgen.yaml'
+          - 'easytravel-mongodb-secret.yaml'
+          - 'easytravel-mongodb.yaml'
+          - 'easytravel-nginx.yaml'
+      namespace:
+        description: 'Specify the namespace to deploy to'
+        required: true
 
 env:
   AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
@@ -68,24 +50,13 @@ jobs:
         with:
           kubeconfig: ${{ env.KUBE_CONFIG_DATA }}
 
-      - name: Perform action
-        if: ${{ github.event.inputs.action == 'deploy' }}
+      - name: Perform Action
         run: |
-          if [ ${{ github.event.inputs.easytravel-backend.yaml }} == true ]; then kubectl apply -f ${{ github.workspace }}/manifests/easytravel-backend.yaml -n ${{ github.event.inputs.namespace }}; fi
-          if [ ${{ github.event.inputs.easytravel-config.yaml }} == true ]; then kubectl apply -f ${{ github.workspace }}/manifests/easytravel-config.yaml -n ${{ github.event.inputs.namespace }}; fi
-          if [ ${{ github.event.inputs.easytravel-frontend.yaml }} == true ]; then kubectl apply -f ${{ github.workspace }}/manifests/easytravel-frontend.yaml -n ${{ github.event.inputs.namespace }}; fi
-          if [ ${{ github.event.inputs.easytravel-loadgen.yaml }} == true ]; then kubectl apply -f ${{ github.workspace }}/manifests/easytravel-loadgen.yaml -n ${{ github.event.inputs.namespace }}; fi
-          if [ ${{ github.event.inputs.easytravel-mongodb-secret.yaml }} == true ]; then kubectl apply -f ${{ github.workspace }}/manifests/easytravel-mongodb-secret.yaml -n ${{ github.event.inputs.namespace }}; fi
-          if [ ${{ github.event.inputs.easytravel-mongodb.yaml }} == true ]; then kubectl apply -f ${{ github.workspace }}/manifests/easytravel-mongodb.yaml -n ${{ github.event.inputs.namespace }}; fi
-          if [ ${{ github.event.inputs.easytravel-nginx.yaml }} == true ]; then kubectl apply -f ${{ github.workspace }}/manifests/easytravel-nginx.yaml -n ${{ github.event.inputs.namespace }}; fi
-          
-      - name: Clean pods
-        if: ${{ github.event.inputs.action == 'clean' }}
-        run: |
-          if [ ${{ github.event.inputs.easytravel-backend.yaml }} == true ]; then kubectl delete pods -l app=easytravel-backend -n ${{ github.event.inputs.namespace }}; fi
-          if [ ${{ github.event.inputs.easytravel-config.yaml }} == true ]; then kubectl delete pods -l app=easytravel-config -n ${{ github.event.inputs.namespace }}; fi
-          if [ ${{ github.event.inputs.easytravel-frontend.yaml }} == true ]; then kubectl delete pods -l app=easytravel-frontend -n ${{ github.event.inputs.namespace }}; fi
-          if [ ${{ github.event.inputs.easytravel-loadgen.yaml }} == true ]; then kubectl delete pods -l app=easytravel-loadgen -n ${{ github.event.inputs.namespace }}; fi
-          if [ ${{ github.event.inputs.easytravel-mongodb-secret.yaml }} == true ]; then kubectl delete pods -l app=easytravel-mongodb-secret -n ${{ github.event.inputs.namespace }}; fi
-          if [ ${{ github.event.inputs.easytravel-mongodb.yaml }} == true ]; then kubectl delete pods -l app=easytravel-mongodb -n ${{ github.event.inputs.namespace }}; fi
-          if [ ${{ github.event.inputs.easytravel-nginx.yaml }} == true ]; then kubectl delete pods -l app=easytravel-nginx -n ${{ github.event.inputs.namespace }}; fi
+          if [ "${{ github.event.inputs.action }}" == "deploy" ]; then
+            kubectl apply -f ${{ github.workspace }}/manifests/${{ github.event.inputs.manifest }} -n ${{ github.event.inputs.namespace }}
+          elif [ "${{ github.event.inputs.action }}" == "clean" ]; then
+            kubectl delete pods --all -n ${{ github.event.inputs.namespace }}
+          else
+            echo "Invalid action specified"
+            exit 1
+          fi
