@@ -15,6 +15,27 @@ on:
           - 'stop-loadgen'
           - 'start-loadgen'
           - 'run-script'  # Added option to run script
+      manifest:
+        description: 'Select the Kubernetes manifest file to deploy'
+        default: 'easytravel-frontend'
+        type: choice
+        options:
+          - 'easytravel-backend'
+          - 'easytravel-config'
+          - 'easytravel-frontend'
+          - 'easytravel-loadgen'
+          - 'easytravel-mongodb-secret'
+          - 'easytravel-mongodb'
+          - 'easytravel-nginx'
+          - 'loadgen'
+      namespace:
+        description: 'Specify the namespace to deploy to'
+        required: true
+        default: 'easytravel'
+        type: choice
+        options:
+          - 'easytravel'
+          - 'argocd'
 
 env:
   AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
