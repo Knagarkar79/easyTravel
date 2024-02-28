@@ -5,7 +5,7 @@ on:
     inputs:
       action:
         description: 'Select the action to perform'
-        required: true
+        # required: true
         type: choice
         options:
           - 'deploy'
@@ -17,7 +17,7 @@ on:
           - 'run-script'  # Added option to run script
       manifest:
         description: 'Select the Kubernetes manifest file to deploy'
-        default: 'easytravel-frontend'
+        default: 
         type: choice
         options:
           - 'easytravel-backend'
